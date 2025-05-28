@@ -15,10 +15,16 @@ export const Translations = {
     'Pot of greed': 'Pot of greed',
     'Yoru ni Kakeru': 'Into The Night (by item4)',
     'Shake!': 'Shake!',
-    'Input names separated by commas or line feed here':
-      'Input names separated by commas or line feed here',
-    'This program is freeware and may be used freely anywhere, including in broadcasts and videos.': 'This program is freeware and may be used freely anywhere, including in broadcasts and videos.',
-    'Close': 'Close',
+    'Input names separated by commas or line feed here': 'Input names separated by commas or line feed here',
+    'This program is freeware and may be used freely anywhere, including in broadcasts and videos.':
+      'This program is freeware and may be used freely anywhere, including in broadcasts and videos.',
+    Close: 'Close',
+    'Infinite Loop': 'Infinite Loop',
+    'Loop Delay (seconds)': 'Loop Delay (seconds)',
+    'Prevent Duplicate Winners (Range Mode)': 'Prevent Duplicate Winners (Range Mode)',
+    '🎉 게임 결과': '🎉 Game Result',
+    '다음 게임 시작까지': 'Next Game Starts In',
+    'ESC 키를 눌러 중단': 'Press ESC to stop',
   },
   ko: {
     'Enter names below': '이름들을 입력하세요',
@@ -36,10 +42,16 @@ export const Translations = {
     'Pot of greed': '욕망의 항아리',
     'Yoru ni Kakeru': '밤을 달리다 (by item4)',
     'Shake!': '흔들기!',
-    'Input names separated by commas or line feed here':
-      '이름들을 쉼표나 엔터로 구분해서 넣어주세요',
-    'This program is freeware and may be used freely anywhere, including in broadcasts and videos.': '이 프로그램은 프리웨어이며 방송이나 영상 등을 포함한 어떤 용도로든 자유롭게 사용하는 것이 허용되어있습니다.',
-    'Close': '닫기',
+    'Input names separated by commas or line feed here': '이름들을 쉼표나 엔터로 구분해서 넣어주세요',
+    'This program is freeware and may be used freely anywhere, including in broadcasts and videos.':
+      '이 프로그램은 프리웨어이며 방송이나 영상 등을 포함한 어떤 용도로든 자유롭게 사용하는 것이 허용되어있습니다.',
+    Close: '닫기',
+    'Infinite Loop': '무한 반복',
+    'Loop Delay (seconds)': '반복 간격 (초)',
+    'Prevent Duplicate Winners (Range Mode)': '중복 승자 방지 (범위 모드)',
+    '🎉 게임 결과': '🎉 게임 결과',
+    '다음 게임 시작까지': '다음 게임 시작까지',
+    'ESC 키를 눌러 중단': 'ESC 키를 눌러 중단',
   },
 } as const;
 

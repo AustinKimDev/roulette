@@ -29,6 +29,7 @@ export class Roulette extends EventTarget {
   private _speed = 1;
 
   private _winners: Marble[] = [];
+  private _duplicateMarbles: Marble[] = []; // 중복으로 제외된 구슬들을 추적
   private _particleManager = new ParticleManager();
   private _stage: StageDef | null = null;
 
@@ -58,6 +59,8 @@ export class Roulette extends EventTarget {
   private _loopDelay: number = 5000;
   private _loopTimeoutId: number | null = null;
   private _savedNames: string[] = [];
+
+  private _preventDuplicateWinnersInRangeMode: boolean = false;
 
   get isReady() {
     return this._isReady;
@@ -141,6 +144,20 @@ export class Roulette extends EventTarget {
         this.physics.impact(marble.id);
       }
       if (marble.y > this._stage.goalY) {
+        // Check for duplicates only in range mode with the option enabled
+        if (this._winningRange > 1 && this._preventDuplicateWinnersInRangeMode) {
+          const isDuplicateWinner = this._winners.some((winner) => winner.name === marble.name);
+          if (isDuplicateWinner) {
+            // Add to duplicate marbles list for tracking
+            this._duplicateMarbles.push(marble);
+            // Remove the duplicate marble from physics
+            setTimeout(() => {
+              this.physics.removeMarble(marble.id);
+            }, 500);
+            continue; // Skip adding this marble to _winners
+          }
+        }
+
         this._winners.push(marble);
 
         // Range 모드: 지정된 범위만큼의 승자가 나오면 게임 종료
@@ -258,6 +275,7 @@ export class Roulette extends EventTarget {
       entities: this.physics.getEntities(),
       marbles: this._marbles,
       winners: this._winners,
+      duplicateMarbles: this._duplicateMarbles,
       particleManager: this._particleManager,
       effects: this._effects,
       winnerRank: this._winnerRank,
@@ -326,6 +344,7 @@ export class Roulette extends EventTarget {
     this.physics.clearMarbles();
     this._winner = null;
     this._winners = [];
+    this._duplicateMarbles = [];
     this._marbles = [];
   }
 
@@ -574,5 +593,9 @@ export class Roulette extends EventTarget {
 
       this.start();
     }, this._loopDelay);
+  }
+
+  public setPreventDuplicateWinnersInRangeMode(value: boolean) {
+    this._preventDuplicateWinnersInRangeMode = value;
   }
 }

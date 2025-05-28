@@ -14,6 +14,7 @@ export type RenderParameters = {
   entities: MapEntityState[];
   marbles: Marble[];
   winners: Marble[];
+  duplicateMarbles?: Marble[];
   particleManager: ParticleManager;
   effects: GameObject[];
   winnerRank: number;

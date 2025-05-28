@@ -1,7 +1,7 @@
 import { RenderParameters } from './rouletteRenderer';
+import { Rect } from './types/rect.type';
 import { UIObject } from './UIObject';
 import { bound } from './utils/bound.decorator';
-import { Rect } from './types/rect.type';
 
 export class RankRenderer implements UIObject {
   private _currentY = 0;
@@ -11,8 +11,7 @@ export class RankRenderer implements UIObject {
   private _currentWinner = -1;
   private maxY = 0;
 
-  constructor() {
-  }
+  constructor() {}
 
   @bound
   onWheel(e: WheelEvent) {
@@ -25,16 +24,14 @@ export class RankRenderer implements UIObject {
 
   render(
     ctx: CanvasRenderingContext2D,
-    { winners, marbles, winnerRank }: RenderParameters,
+    { winners, marbles, winnerRank, winningRange, duplicateMarbles }: RenderParameters,
     width: number,
-    height: number,
+    height: number
   ) {
     const startX = width - 5;
     const startY = Math.max(-this.fontHeight, this._currentY - height / 2);
-    this.maxY = Math.max(
-      0,
-      (marbles.length + winners.length) * this.fontHeight + this.fontHeight,
-    );
+    const totalItems = marbles.length + winners.length + (duplicateMarbles?.length || 0);
+    this.maxY = Math.max(0, totalItems * this.fontHeight + this.fontHeight);
     this._currentWinner = winners.length;
 
     ctx.save();
@@ -48,30 +45,46 @@ export class RankRenderer implements UIObject {
     ctx.clip();
 
     ctx.translate(0, -startY);
+
+    let currentRank = 0;
+
+    // Render winners
     ctx.font = 'bold 11pt sans-serif';
-    winners.forEach((marble: { color: string; name: string }, rank: number) => {
-      const y = rank * this.fontHeight;
+    winners.forEach((marble: { color: string; name: string }, index: number) => {
+      const y = currentRank * this.fontHeight;
       if (y >= startY && y <= startY + ctx.canvas.height) {
         ctx.fillStyle = marble.color;
-        ctx.fillText(
-          `${rank === winnerRank ? '☆' : '\u2714'} ${marble.name} #${rank + 1}`,
-          startX,
-          20 + y,
-        );
+        // Range mode: use star for range winners, check for target winner
+        const symbol = winningRange > 1 ? '★' : index === winnerRank ? '☆' : '\u2714';
+        ctx.fillText(`${symbol} ${marble.name} #${index + 1}`, startX, 20 + y);
       }
+      currentRank++;
     });
+
+    // Render duplicates (if any)
+    if (duplicateMarbles && duplicateMarbles.length > 0) {
+      ctx.font = '10pt sans-serif';
+      duplicateMarbles.forEach((marble: { color: string; name: string }) => {
+        const y = currentRank * this.fontHeight;
+        if (y >= startY && y <= startY + ctx.canvas.height) {
+          ctx.fillStyle = marble.color;
+          ctx.fillText(`− ${marble.name} (중복)`, startX, 20 + y);
+        }
+        currentRank++;
+      });
+    }
+
+    // Render remaining marbles
     ctx.font = '10pt sans-serif';
-    marbles.forEach((marble: { color: string; name: string }, rank: number) => {
-      const y = (rank + winners.length) * this.fontHeight;
+    marbles.forEach((marble: { color: string; name: string }, index: number) => {
+      const y = currentRank * this.fontHeight;
       if (y >= startY && y <= startY + ctx.canvas.height) {
         ctx.fillStyle = marble.color;
-        ctx.fillText(
-          `${marble.name} #${rank + 1 + winners.length}`,
-          startX,
-          20 + y,
-        );
+        ctx.fillText(`${marble.name} #${currentRank + 1}`, startX, 20 + y);
       }
+      currentRank++;
     });
+
     ctx.restore();
   }
 

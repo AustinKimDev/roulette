@@ -112,6 +112,49 @@
           }
         }
 
+        .actions {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 8px;
+
+          button {
+            flex: 1;
+            justify-content: center;
+            color: #ffffff;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+
+            &:hover {
+              background: linear-gradient(135deg, #2563eb, #1e40af);
+              transform: translateY(-1px);
+              box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            }
+
+            &:active {
+              transform: translateY(0);
+            }
+          }
+
+          #btnNotice {
+            flex: 0 0 auto;
+            width: 40px;
+            background: rgba(255, 255, 255, 0.1);
+
+            &:hover {
+              background: rgba(255, 255, 255, 0.2);
+            }
+          }
+        }
+
         button {
           color: #ffffff;
           background: linear-gradient(135deg, #3b82f6, #1d4ed8);
@@ -181,13 +224,15 @@
           &.clock {
             mask-image: url('assets/images/clock.svg');
           }
+          &.filter {
+            mask-image: url('assets/images/filter.svg');
+          }
         }
 
         .settings-grid {
           display: grid;
           grid-template-columns: 1fr;
           gap: 16px;
-          margin-bottom: 16px;
         }
 
         .setting-item {
@@ -216,26 +261,6 @@
 
         .setting-item.full-width {
           grid-column: 1 / -1;
-        }
-
-        .actions {
-          display: flex;
-          gap: 8px;
-
-          button {
-            flex: 1;
-            justify-content: center;
-          }
-
-          #btnNotice {
-            flex: 0 0 auto;
-            width: 40px;
-            background: rgba(255, 255, 255, 0.1);
-
-            &:hover {
-              background: rgba(255, 255, 255, 0.2);
-            }
-          }
         }
 
         select {
@@ -712,32 +737,6 @@
               }
             }
           }
-
-          .next-game {
-            background: rgba(59, 130, 246, 0.1);
-            border-radius: 20px;
-            padding: 30px;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-          }
-
-          .countdown-number {
-            font-size: 6rem;
-            font-weight: bold;
-            margin: 20px 0;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
-            animation: countdownPulse 1s ease-in-out;
-          }
-
-          .countdown-subtext {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 20px;
-          }
         }
       }
 
@@ -867,6 +866,18 @@
         }
         console.log('initializing start');
 
+        // Initialize options if not already present
+        window.options = window.options || {};
+        window.options.autoRecording = document.querySelector('#chkAutoRecording').checked;
+        window.options.useSkills = document.querySelector('#chkSkill').checked;
+        window.options.infiniteLoop = document.querySelector('#chkInfiniteLoop').checked;
+        window.options.loopDelay = parseInt(document.querySelector('#inLoopDelay').value, 10) * 1000;
+        window.options.winningRank = parseInt(document.querySelector('#in_winningRank').value, 10) - 1;
+        window.options.winningRange = parseInt(document.querySelector('#in_winningRange').value, 10);
+        // Initialize the new option
+        window.options.preventDuplicateWinnersInRangeMode =
+          document.querySelector('#chkPreventDuplicatesInRange').checked;
+
         const savedNames = localStorage.getItem('mbr_names');
         if (savedNames) {
           document.querySelector('#in_names').value = savedNames;
@@ -936,6 +947,11 @@
         document.querySelector('#chkInfiniteLoop').addEventListener('change', (e) => {
           window.options.infiniteLoop = e.target.matches(':checked');
           window.roullete.setInfiniteLoop(window.options.infiniteLoop);
+        });
+
+        document.querySelector('#chkPreventDuplicatesInRange').addEventListener('change', (e) => {
+          window.options.preventDuplicateWinnersInRangeMode = e.target.matches(':checked');
+          window.roullete.setPreventDuplicateWinnersInRangeMode(window.options.preventDuplicateWinnersInRangeMode);
         });
 
         document.querySelector('#inLoopDelay').addEventListener('change', (e) => {
@@ -1062,6 +1078,9 @@
           document.querySelector('#countdown').classList.add('hide');
         });
 
+        // Ensure the new option is initialized on roulette instance before other calls
+        window.roullete.setPreventDuplicateWinnersInRangeMode(window.options.preventDuplicateWinnersInRangeMode);
+
         document.querySelector('#btnShuffle').click();
 
         const maps = window.roullete.getMaps();
@@ -1124,28 +1143,23 @@
       }
     </script>
     <div id="settings" class="settings">
-      <div class="left">
-        <h3 data-trans>Enter names below</h3>
-        <textarea
-          id="in_names"
-          placeholder="Input names separated by commas or line feed here"
-          data-trans="placeholder"
-        >
+      <h3 data-trans>Enter names below</h3>
+      <textarea id="in_names" placeholder="Input names separated by commas or line feed here" data-trans="placeholder">
 짱구*5, 짱아*10, 봉미선*3</textarea
-        >
-        <div class="actions">
-          <button id="btnNotice">
-            <i class="icon megaphone"></i>
-          </button>
-          <button id="btnShuffle">
-            <i class="icon shuffle"></i>
-            <span data-trans>Shuffle</span>
-          </button>
-          <button id="btnStart">
-            <i class="icon play"></i>
-            <span data-trans>Start</span>
-          </button>
-        </div>
+      >
+
+      <div class="actions">
+        <button id="btnNotice">
+          <i class="icon megaphone"></i>
+        </button>
+        <button id="btnShuffle">
+          <i class="icon shuffle"></i>
+          <span data-trans>Shuffle</span>
+        </button>
+        <button id="btnStart">
+          <i class="icon play"></i>
+          <span data-trans>Start</span>
+        </button>
       </div>
 
       <div class="settings-grid">
@@ -1155,6 +1169,27 @@
             <span data-trans>Map</span>
           </label>
           <select id="sltMap"></select>
+        </div>
+
+        <div class="setting-item">
+          <label>
+            <i class="icon trophy"></i>
+            <span data-trans>The winner is</span>
+          </label>
+          <div class="btn-group">
+            <button class="btn-winner btn-first-winner active" data-trans>First</button>
+            <button class="btn-winner btn-last-winner" data-trans>Last</button>
+            <input type="number" id="in_winningRank" value="1" min="1" />
+            <input type="number" id="in_winningRange" value="1" min="1" />
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <label>
+            <i class="icon filter"></i>
+            <span data-trans>Prevent Duplicate Winners (Range Mode)</span>
+          </label>
+          <input type="checkbox" id="chkPreventDuplicatesInRange" />
         </div>
 
         <div class="setting-item">
@@ -1203,19 +1238,6 @@
               font-size: 13px;
             "
           />
-        </div>
-
-        <div class="setting-item">
-          <label>
-            <i class="icon trophy"></i>
-            <span data-trans>The winner is</span>
-          </label>
-          <div class="btn-group">
-            <button class="btn-winner btn-first-winner active" data-trans>First</button>
-            <button class="btn-winner btn-last-winner" data-trans>Last</button>
-            <input type="number" id="in_winningRank" value="1" min="1" />
-            <input type="number" id="in_winningRange" value="1" min="1" />
-          </div>
         </div>
       </div>
     </div>
