@@ -737,6 +737,33 @@
               }
             }
           }
+
+          .next-game {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+
+            h2 {
+              margin-bottom: 20px;
+            }
+
+            .countdown-number {
+              font-size: 6rem;
+              font-weight: bold;
+              color: #ffffff;
+              text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+              margin: 20px 0;
+              animation: countdownPulse 1s ease-in-out;
+            }
+
+            .countdown-subtext {
+              font-size: 1rem;
+              color: rgba(255, 255, 255, 0.7);
+              margin-top: 20px;
+            }
+          }
         }
       }
 
